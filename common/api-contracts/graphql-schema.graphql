@@ -1,0 +1,78 @@
+# common/api-contracts/graphql-schema.graphql
+scalar DateTime
+scalar Map
+
+enum EventType {
+  USER_LOGIN
+  USER_LOGOUT
+  PAGE_VIEW
+  BUTTON_CLICK
+  ITEM_PURCHASE
+  TRANSACTION_FAILED
+  ANOMALY_DETECTED
+}
+
+enum SeverityLevel {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+type GeoLocation {
+  country: String
+  city: String
+  latitude: Float
+  longitude: Float
+}
+
+type DeviceInfo {
+  deviceType: String
+  operatingSystem: String
+  userAgent: String
+}
+
+type UserEvent {
+  eventId: ID!
+  userId: String!
+  eventType: EventType!
+  timestamp: DateTime!
+  ipAddress: String
+  sessionId: String
+  deviceInfo: DeviceInfo
+  geoLocation: GeoLocation
+  metadata: Map
+}
+
+type AnomalyAlert {
+  alertId: ID!
+  ruleId: String!
+  severity: SeverityLevel!
+  affectedUserId: String
+  description: String!
+  eventCount: Int!
+  detectedAt: DateTime!
+  resolved: Boolean!
+}
+
+type MetricsAggregate {
+  timeBucket: String!
+  totalEvents: Int!
+  anomalyCount: Int!
+  throughputPerSec: Float!
+}
+
+type Query {
+  getEventsByUserId(userId: String!, limit: Int = 50): [UserEvent!]!
+  getRecentAnomalies(severity: SeverityLevel, limit: Int = 20): [AnomalyAlert!]!
+  getRealtimeMetrics(windowMinutes: Int = 15): [MetricsAggregate!]!
+}
+
+type Mutation {
+  resolveAnomalyAlert(alertId: ID!): Boolean!
+  triggerSelfHealingAction(serviceName: String!, action: String!): Boolean!
+}
+
+type Subscription {
+  liveAnomalies(minSeverity: SeverityLevel): AnomalyAlert!
+  liveMetricsStream: MetricsAggregate!
+}

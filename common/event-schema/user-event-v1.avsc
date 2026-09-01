@@ -1,0 +1,54 @@
+// common/event-schema/user-event-v1.avsc
+{
+  "type": "record",
+  "name": "UserEvent",
+  "namespace": "com.platform.analytics.event.v1",
+  "doc": "Schema version 1 for core user activity tracking and telemetry.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "Unique identifier for the event deduplication."
+    },
+    {
+      "name": "userId",
+      "type": "string",
+      "doc": "Unique user or account identifier."
+    },
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": ["USER_LOGIN", "USER_LOGOUT", "PAGE_VIEW", "BUTTON_CLICK", "ITEM_PURCHASE", "TRANSACTION_FAILED"]
+      },
+      "doc": "Categorization of the user interaction."
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "UTC timestamp in milliseconds when the event occurred."
+    },
+    {
+      "name": "ipAddress",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "IPv4 or IPv6 origin address."
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Flexible key-value map for dynamic payload attributes."
+    }
+  ]
+}

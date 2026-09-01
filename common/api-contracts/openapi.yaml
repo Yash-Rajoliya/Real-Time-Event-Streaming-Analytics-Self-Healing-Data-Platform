@@ -1,0 +1,145 @@
+# common/api-contracts/openapi.yaml
+openapi: 3.0.3
+info:
+  title: Analytics & Streaming Operations API
+  description: High-throughput ingestion and administrative contract for event pipeline, anomaly rules, and cluster health.
+  version: 1.0.0
+paths:
+  /api/v1/events/ingest:
+    post:
+      summary: Ingest high-throughput user event payload
+      operationId: ingestEvent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestEventRequest'
+      responses:
+        '202':
+          description: Event successfully accepted and queued into Kafka
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestEventResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/v1/anomalies/rules:
+    get:
+      summary: Fetch all dynamic real-time anomaly detection rules
+      operationId: getAnomalyRules
+      responses:
+        '200':
+          description: List of active threshold and statistical rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnomalyRule'
+    post:
+      summary: Register a new real-time anomaly detection rule
+      operationId: createAnomalyRule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyRule'
+      responses:
+        '201':
+          description: Rule successfully created and broadcasted to stream processors
+
+components:
+  schemas:
+    IngestEventRequest:
+      type: object
+      required:
+        - userId
+        - eventType
+        - timestamp
+      properties:
+        userId:
+          type: string
+          example: "usr_998124a"
+        eventType:
+          type: string
+          enum: [USER_LOGIN, USER_LOGOUT, PAGE_VIEW, BUTTON_CLICK, ITEM_PURCHASE, TRANSACTION_FAILED]
+        timestamp:
+          type: integer
+          format: int64
+          example: 1772500000000
+        ipAddress:
+          type: string
+          format: ipv4
+          example: "192.168.1.100"
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+
+    IngestEventResponse:
+      type: object
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          example: "ACCEPTED"
+        ingestedAt:
+          type: integer
+          format: int64
+
+    AnomalyRule:
+      type: object
+      required:
+        - ruleId
+        - metric
+        - threshold
+        - timeWindowSeconds
+      properties:
+        ruleId:
+          type: string
+          example: "rule_high_error_rate"
+        metric:
+          type: string
+          example: "TRANSACTION_FAILED"
+        threshold:
+          type: number
+          example: 100
+        timeWindowSeconds:
+          type: integer
+          example: 60
+        action:
+          type: string
+          enum: [ALERT, BLOCK, SELF_HEAL]
+          example: "ALERT"
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        timestamp:
+          type: integer
+          format: int64
+
+  responses:
+    BadRequest:
+      description: Invalid event payload structure or schema violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    InternalError:
+      description: Infrastructure ingestion failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

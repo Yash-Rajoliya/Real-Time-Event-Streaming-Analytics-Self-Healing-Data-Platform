@@ -1,0 +1,95 @@
+// common/event-schema/user-event-v2.avsc
+{
+  "type": "record",
+  "name": "UserEvent",
+  "namespace": "com.platform.analytics.event.v2",
+  "doc": "Schema version 2 introducing geo-location, device telemetry, and payload enrichment.",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": {
+        "type": "string",
+        "logicalType": "uuid"
+      },
+      "doc": "Unique identifier for the event deduplication."
+    },
+    {
+      "name": "userId",
+      "type": "string",
+      "doc": "Unique user or account identifier."
+    },
+    {
+      "name": "eventType",
+      "type": {
+        "type": "enum",
+        "name": "EventType",
+        "symbols": ["USER_LOGIN", "USER_LOGOUT", "PAGE_VIEW", "BUTTON_CLICK", "ITEM_PURCHASE", "TRANSACTION_FAILED", "ANOMALY_DETECTED"]
+      },
+      "doc": "Categorization of the user interaction."
+    },
+    {
+      "name": "timestamp",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      },
+      "doc": "UTC timestamp in milliseconds when the event occurred."
+    },
+    {
+      "name": "ipAddress",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "IPv4 or IPv6 origin address."
+    },
+    {
+      "name": "sessionId",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Session identifier grouping sequential events."
+    },
+    {
+      "name": "deviceInfo",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "DeviceInfo",
+          "fields": [
+            { "name": "deviceType", "type": "string" },
+            { "name": "operatingSystem", "type": "string" },
+            { "name": "userAgent", "type": "string" }
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "Client device telemetry attributes."
+    },
+    {
+      "name": "geoLocation",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "GeoLocation",
+          "fields": [
+            { "name": "country", "type": "string" },
+            { "name": "city", "type": "string" },
+            { "name": "latitude", "type": "double" },
+            { "name": "longitude", "type": "double" }
+          ]
+        }
+      ],
+      "default": null,
+      "doc": "Geographic coordinates resolved from IP or device GPS."
+    },
+    {
+      "name": "metadata",
+      "type": {
+        "type": "map",
+        "values": "string"
+      },
+      "default": {},
+      "doc": "Flexible key-value map for dynamic payload attributes."
+    }
+  ]
+}

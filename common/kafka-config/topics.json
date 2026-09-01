@@ -1,0 +1,46 @@
+{
+  "topics": [
+    {
+      "name": "raw-user-events-v1",
+      "partitions": 12,
+      "replicationFactor": 3,
+      "configs": {
+        "cleanup.policy": "delete",
+        "retention.ms": "604800000",
+        "min.insync.replicas": "2",
+        "compression.type": "snappy"
+      }
+    },
+    {
+      "name": "enriched-user-events-v1",
+      "partitions": 12,
+      "replicationFactor": 3,
+      "configs": {
+        "cleanup.policy": "delete",
+        "retention.ms": "2592000000",
+        "min.insync.replicas": "2",
+        "compression.type": "zstd"
+      }
+    },
+    {
+      "name": "detected-anomalies-v1",
+      "partitions": 6,
+      "replicationFactor": 3,
+      "configs": {
+        "cleanup.policy": "delete",
+        "retention.ms": "2592000000",
+        "min.insync.replicas": "2"
+      }
+    },
+    {
+      "name": "dead-letter-queue-v1",
+      "partitions": 6,
+      "replicationFactor": 3,
+      "configs": {
+        "cleanup.policy": "delete",
+        "retention.ms": "1209600000",
+        "min.insync.replicas": "2"
+      }
+    }
+  ]
+}
