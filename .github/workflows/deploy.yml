@@ -1,0 +1,73 @@
+# .github/workflows/deploy.yml
+name: CD Deployment Pipeline
+
+on:
+  workflow_run:
+    workflows: ["Backend CI Pipeline", "Frontend CI Pipeline"]
+    branches: [ main ]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target Deployment Environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+jobs:
+  deploy:
+    name: Deploy to Kubernetes Cluster
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'staging' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Environment Variables
+        run: |
+          ENV_NAME="${{ inputs.environment || 'staging' }}"
+          echo "DEPLOY_ENV=$ENV_NAME" >> $GITHUB_ENV
+          echo "COMMIT_SHA=${{ github.sha }}" >> $GITHUB_ENV
+
+      - name: Configure AWS Credentials / Kubeconfig
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update Kubeconfig
+        run: |
+          aws eks update-kubeconfig --name streaming-analytics-${{ env.DEPLOY_ENV }} --region us-east-1
+
+      - name: Install Helm & Kustomize
+        uses: azure/setup-helm@v4
+        with:
+          version: 'v3.14.0'
+
+      - name: Deploy Infrastructure Manifests via Kustomize
+        run: |
+          cd infra/k8s/overlays/${{ env.DEPLOY_ENV }}
+          kustomize edit set image backend-image=ghcr.io/${{ github.repository }}/backend-service:${{ env.COMMIT_SHA }}
+          kustomize edit set image frontend-image=ghcr.io/${{ github.repository }}/frontend-dashboard:${{ env.COMMIT_SHA }}
+          kubectl apply -k .
+
+      - name: Rollout Verification
+        run: |
+          kubectl rollout status deployment/backend-ingestion-service -n ${{ env.DEPLOY_ENV }} --timeout=300s
+          kubectl rollout status deployment/frontend-dashboard -n ${{ env.DEPLOY_ENV }} --timeout=300s
+
+      - name: Notify Slack Deployment Status
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
