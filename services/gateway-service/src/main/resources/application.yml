@@ -1,0 +1,58 @@
+# services/gateway-service/src/main/resources/application.yml
+server:
+  port: 8080
+  netty:
+    connection-timeout: 5000ms
+    idle-timeout: 30s
+
+spring:
+  application:
+    name: gateway-service
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 64
+          max-idle: 16
+          min-idle: 8
+  cloud:
+    gateway:
+      metrics:
+        enabled: true
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 10s
+        pool:
+          type: elastic
+          max-idle-time: 15s
+
+jwt:
+  secret: ${JWT_SECRET:dGhpcy1pcy1hLXNlY3VyZS1kZWZhdWx0LXNlY3JldC1rZXktZm9yLWRldmVsb3BtZW50LXB1cnBvc2VzLW9ubHk=}
+  issuer: platform-gateway
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      ingestionCircuitBreaker:
+        slidingWindowSize: 20
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000ms
+        permittedNumberOfCallsInHalfOpenState: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus, gateway
+  endpoint:
+    health:
+      show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
