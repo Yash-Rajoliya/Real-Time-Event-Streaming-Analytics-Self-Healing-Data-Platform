@@ -1,58 +1,38 @@
 # services/gateway-service/src/main/resources/application.yml
 server:
   port: 8080
-  netty:
-    connection-timeout: 5000ms
-    idle-timeout: 30s
 
 spring:
   application:
     name: gateway-service
-  data:
-    redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
-      timeout: 2000ms
-      lettuce:
-        pool:
-          max-active: 64
-          max-idle: 16
-          min-idle: 8
   cloud:
     gateway:
-      metrics:
-        enabled: true
-      httpclient:
-        connect-timeout: 3000
-        response-timeout: 10s
-        pool:
-          type: elastic
-          max-idle-time: 15s
+      routes:
+        - id: schema-registry
+          uri: ${SCHEMA_REGISTRY_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/v1/schemas/**
 
-jwt:
-  secret: ${JWT_SECRET:dGhpcy1pcy1hLXNlY3VyZS1kZWZhdWx0LXNlY3JldC1rZXktZm9yLWRldmVsb3BtZW50LXB1cnBvc2VzLW9ubHk=}
-  issuer: platform-gateway
+        - id: analytics-service
+          uri: ${ANALYTICS_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/v1/analytics/**
 
-resilience4j:
-  circuitbreaker:
-    instances:
-      ingestionCircuitBreaker:
-        slidingWindowSize: 20
-        failureRateThreshold: 50
-        waitDurationInOpenState: 10000ms
-        permittedNumberOfCallsInHalfOpenState: 5
+        - id: query-service-rest
+          uri: ${QUERY_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/v1/query/**
+
+        - id: query-service-graphql
+          uri: ${QUERY_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/graphql/**, /graphiql/**
 
 management:
   endpoints:
     web:
       exposure:
-        include: health, info, metrics, prometheus, gateway
+        include: health, info, prometheus, gateway
   endpoint:
     health:
       show-details: always
-    prometheus:
-      enabled: true
-  metrics:
-    export:
-      prometheus:
-        enabled: true
