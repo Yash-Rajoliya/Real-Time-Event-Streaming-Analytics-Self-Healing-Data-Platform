@@ -1,0 +1,37 @@
+// services/schema-registry/schemas/user-event-v2.avsc
+{
+  "type": "record",
+  "name": "UserEvent",
+  "namespace": "com.platform.events",
+  "doc": "User interaction event v2 with additional contextual metadata",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "eventType",
+      "type": "string"
+    },
+    {
+      "name": "timestamp",
+      "type": "long"
+    },
+    {
+      "name": "sessionId",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Optional session identifier added in v2"
+    },
+    {
+      "name": "ipAddress",
+      "type": ["null", "string"],
+      "default": null,
+      "doc": "Client remote IP address"
+    }
+  ]
+}

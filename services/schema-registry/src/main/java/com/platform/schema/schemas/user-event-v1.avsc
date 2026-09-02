@@ -1,0 +1,29 @@
+// services/schema-registry/schemas/user-event-v1.avsc
+{
+  "type": "record",
+  "name": "UserEvent",
+  "namespace": "com.platform.events",
+  "doc": "User interaction event v1",
+  "fields": [
+    {
+      "name": "eventId",
+      "type": "string",
+      "doc": "Unique ID of the event"
+    },
+    {
+      "name": "userId",
+      "type": "string",
+      "doc": "User account identifier"
+    },
+    {
+      "name": "eventType",
+      "type": "string",
+      "doc": "Categorical type of interaction"
+    },
+    {
+      "name": "timestamp",
+      "type": "long",
+      "doc": "Epoch millis timestamp"
+    }
+  ]
+}
