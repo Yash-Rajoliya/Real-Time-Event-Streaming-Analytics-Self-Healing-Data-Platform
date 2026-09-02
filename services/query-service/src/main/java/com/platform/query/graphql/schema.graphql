@@ -1,0 +1,20 @@
+# services/query-service/src/main/resources/graphql/schema.graphqls
+type Query {
+    executeQuery(statement: String!, dataset: String!, parameters: JSON): QueryResponse
+}
+
+type QueryResponse {
+    queryId: String!
+    status: String!
+    data: [JSON]
+    metrics: ExecutionMetrics
+    errorMessage: String
+}
+
+type ExecutionMetrics {
+    executionTimeMs: Float!
+    rowCount: Int!
+    executedAt: String!
+}
+
+scalar JSON
