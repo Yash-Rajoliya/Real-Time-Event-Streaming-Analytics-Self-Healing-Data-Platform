@@ -1,0 +1,30 @@
+# services/ingestion-service/src/main/resources/application.yml
+server:
+  port: 8081
+
+spring:
+  application:
+    name: ingestion-service
+  main:
+    web-application-type: reactive
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+app:
+  kafka:
+    topics:
+      ingested-events: ${KAFKA_TOPIC_RAW_EVENTS:raw-events-topic}
+      dead-letter: ${KAFKA_TOPIC_DLQ:raw-events-dlq-topic}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
