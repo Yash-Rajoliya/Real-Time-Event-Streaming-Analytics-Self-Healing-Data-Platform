@@ -1,0 +1,6 @@
+server:
+  port: 8089
+
+config:
+  cache:
+    enabled: true
