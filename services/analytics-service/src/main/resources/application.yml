@@ -1,0 +1,22 @@
+# services/analytics-service/src/main/resources/application.yml
+server:
+  port: 8084
+
+spring:
+  application:
+    name: analytics-service
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
