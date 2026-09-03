@@ -1,0 +1,22 @@
+# services/storage-connector/src/main/resources/application.yml
+server:
+  port: 8086
+
+spring:
+  application:
+    name: storage-connector
+
+storage:
+  elasticsearch:
+    uri: ${ELASTICSEARCH_URIS:http://localhost:9200}
+    default-index: platform-events
+  s3:
+    bucket-name: ${S3_BUCKET_NAME:platform-data-lake}
+    region: ${AWS_REGION:us-east-1}
+    endpoint-override: ${AWS_S3_ENDPOINT:http://localhost:4566}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
