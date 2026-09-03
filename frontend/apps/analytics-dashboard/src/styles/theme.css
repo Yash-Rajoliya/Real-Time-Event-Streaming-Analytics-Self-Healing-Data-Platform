@@ -1,0 +1,18 @@
+/* src/styles/theme.css */
+:root {
+  --color-bg-primary: #020617;
+  --color-bg-surface: #0f172a;
+  --color-border: #1e293b;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-accent: #6366f1;
+}
+
+.light {
+  --color-bg-primary: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-border: #e2e8f0;
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #64748b;
+  --color-accent: #4f46e5;
+}
