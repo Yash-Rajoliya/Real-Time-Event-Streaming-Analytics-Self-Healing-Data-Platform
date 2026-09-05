@@ -1,0 +1,7 @@
+{
+  "kafkaBrokers": ["localhost:9092"],
+  "topic": "telemetry.load.test",
+  "ratePerSecond": 100,
+  "metrics": ["cpu_usage", "memory_usage", "disk_io", "network_in"],
+  "services": ["auth-service", "ingestion-service", "billing-service", "analytics-worker"]
+}
